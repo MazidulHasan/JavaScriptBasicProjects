@@ -4,6 +4,14 @@ const clearlocalStorageData = document.querySelector("#clearLocal");
 const showDataFromlocalStorage = document.querySelector("#localStorage");
 
 
+
+// session storage datas
+const sessionStorageInputData = document.querySelector("#sessionStorageInputData");
+const setSessionStorageData = document.querySelector("#setSession");
+const clearSessionStorageData = document.querySelector("#clearSession");
+const showDataFromSessionStorage = document.querySelector("#sessionStorage");
+
+
 const userData = {
   name: "Test Name",
   role: "QA Automation Engineer",
@@ -11,18 +19,32 @@ const userData = {
   detail: ""
 };
 
-// sessionStorage.setItem("step1Data", JSON.stringify({ name: "Mazidul" }));
+const userSessionData = {
+  name: "Test Name 2",
+  role: "QA Automation Engineer 2",
+  skills: ["Java 2", "Playwright 2", "API 2"],
+  detail: ""
+};
 
+// local Storage
 
 document.addEventListener("DOMContentLoaded", function(){
+  
      //only set if not already present
     if (!localStorage.getItem("userData")) {
       localStorage.setItem("userData", JSON.stringify(userData));
     }
 
+    if (!sessionStorage.getItem("userSessionData")) {
+      sessionStorage.setItem("userSessionData", JSON.stringify(userSessionData));
+    }
+
     //show current data on load
     const retrievedData = JSON.parse(localStorage.getItem("userData"));
     showDataFromlocalStorage.textContent = JSON.stringify(retrievedData, null, 2);
+    
+    const retrieveSessiondData = JSON.parse(sessionStorage.getItem("userSessionData"));
+    showDataFromSessionStorage.textContent = JSON.stringify(retrieveSessiondData, null, 2);
 })
 
 setlocalStorageData.addEventListener("click", function(){
@@ -45,7 +67,23 @@ clearlocalStorageData.addEventListener("click", function(){
 
 
 
-//working on the session storage, need to separate the loading status for 
-// different loading condition , here at first it loads teh LocalStorage 
-// data but need to separate the data for session sotrage at the time of 
-// fist load.
+
+// session storage
+setSessionStorageData.addEventListener("click", function(){
+  let retrieveSessionData = JSON.parse(sessionStorage.getItem("userSessionData"));
+  const sessionInputValue = sessionStorageInputData.value;
+  retrieveSessionData.detail = sessionInputValue;
+})
+
+setSessionStorageData.addEventListener("click", function(){
+    let retrievedData = JSON.parse(sessionStorage.getItem("userSessionData"));
+    const inputValue = sessionStorageInputData.value;
+    retrievedData.detail = inputValue;
+    showDataFromSessionStorage.textContent = JSON.stringify(retrievedData, null, 2);
+    sessionStorage.setItem("userSessionData", JSON.stringify(retrievedData));
+})
+
+clearSessionStorageData.addEventListener("click", function(){
+    sessionStorage.clear("userSessionData");
+    showDataFromlocalStorage.textContent = ""
+})
