@@ -17,7 +17,7 @@ let editId = null;
 // ---------- Helpers ----------
 function showAlert(message, type = "success") {
   alertBox.textContent = message;
-  alertBox.className = `alert alert-${type}`; // ✅ updated line
+  alertBox.className = `alert alert-${type}`;
   setTimeout(() => {
     alertBox.textContent = "";
     alertBox.className = "alert";
