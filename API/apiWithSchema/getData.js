@@ -1,7 +1,7 @@
-const config = {
+const CONFIG = {
     apiURL: 'https://jsonplaceholder.typicode.com/posts',
     timeOut: 5000, //5 seconds
-    retrues: 3
+    retries: 3
 }
 
 
@@ -15,6 +15,7 @@ function hasRequiredFiends(responseBody, fieldsArray) {
 
 // Time out request after few seconds
 async function fetchWithTimeout(url, options, timeout = 5000) {
+    
     const controller = new AbortController();
     const timeOutId = setTimeout(() => controller.abort(), timeout);
 
@@ -50,9 +51,12 @@ async function name(fn, retries = 3, delay = 1000) {
 
 function validateTypes(data, schema) {
     const errors = [];
+    console.log("Inside validateTypes");
+    
 
     for (const [field, expectedType] of object.entries(schema)) {
         const actualType = typeof data[field];
+        log("actualType",actualType)
         if (actualType !== expectedType) {
             errors.push(`Field ${field} should be ${expectedType}, got ${actualType}`);
         }
@@ -66,6 +70,7 @@ function validateTypes(data, schema) {
 
 // Retry logic for failed request
 async function retryRequest(fn, retries = 3, delay = 1000) {
+    
   for (let i = 0; i < retries; i++) {
     try {
       return await fn();
@@ -82,16 +87,18 @@ async function createUserPost() {
     
     // prepare requestBody
     const requestBody = {
+        userId: 1,
+        id: 1,
         title: "QA Automation Engineer",
-        body: "Learning advanced Javascript",
-        userId: randomUserId
+        body: "Learning advanced Javascript"
     };
 
     try {
         console.log("Sending post request");
-        const makeRequest = async () => {
-            await fetchWithTimeout(
-                CONFIG.apiUrl,
+        
+        const makeRequest = async () => {            
+            const response = await fetchWithTimeout(
+                CONFIG.apiURL,
                 {
                     method: 'POST',
                     Headers: {
@@ -100,23 +107,48 @@ async function createUserPost() {
                     },
                     body: JSON.stringify(requestBody)
                 },
-                CONFIG.timeout
+                CONFIG.timeOut
             );
+            console.log('Actual response is',response);
             return response;
         }
         
         const response = await retryRequest(makeRequest, CONFIG.retries);
+        console.log("Retry response is: ", response);
+        
         const responseData = await response.json();
-
+        
+        console.log(`Response Data is : ${JSON.stringify(responseData, null, 2)}`);
+        
         // Now need to check the validations
         const validations = [];
-        if (response.responseData !== 201) {
-            throw new Error (`Expected status 201, but got ${response.status}`)
+        if (response.status !== 201) {
+            console.log("Response is not 201");
         }
+        if (!responseData.id) {
+            throw new Error ('No id in response')
+        }
+        
+        // requred field validation
+        const requiredField = ['id'];
+        if (!hasRequiredFiends(responseData, requiredField)) {
+            const missing = requiredField.filter(field => !(field in responseData));
+            console.log(`Missing required fields: ${missing.join(',')}`);
+        }
+
+        const expectedTypes = {
+            id: 'number'
+        };
+
+        const typeCheck = validateTypes(responseData,expectedTypes);
+        console.log(`Expected type is: ${typeCheck}`);
+        
+
+
         
     } catch (error) {
         
     }
 }
 
-getData()
+createUserPost()
